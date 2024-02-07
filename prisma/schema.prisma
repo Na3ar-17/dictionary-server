@@ -17,7 +17,11 @@ datasource db {
 model Folder {
   id          Int     @default(autoincrement()) @id
   title       String  @unique
+  itemsCount Int @default(0) @map("items_count")
   rows        Row[]   
+
+  @@map("folder")
+
 }
 
 model Row {
@@ -26,4 +30,6 @@ model Row {
   translation String
   folder      Folder? @relation(fields: [folderId], references: [id])
   folderId    Int?
+
+  @@map("row")
 }

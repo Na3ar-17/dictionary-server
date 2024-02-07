@@ -1,0 +1,75 @@
+import { ConflictException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateFolderDto } from './dto/folder.dto';
+
+@Injectable()
+export class FolderService {
+  constructor(private prisma: PrismaService) {}
+
+  async findFolder(id: string) {
+    return this.prisma.folder.findUnique({
+      where: {
+        id: +id,
+      },
+    });
+  }
+
+  async getFolders() {
+    return this.prisma.folder.findMany();
+  }
+
+  async createFolder(dto: CreateFolderDto) {
+    if (!dto.title) {
+      throw new ConflictException('Data is empty');
+    }
+
+    const folder = this.prisma.folder.create({
+      data: {
+        title: dto.title,
+      },
+    });
+
+    return folder;
+  }
+
+  async editFolder(dto: CreateFolderDto) {
+    if (!dto.title) {
+      throw new ConflictException('Data is empty');
+    }
+
+    if (!dto.id) {
+      throw new ConflictException('ID is empty');
+    }
+
+    const folder = await this.findFolder(dto.id);
+
+    if (!folder) {
+      throw new ConflictException("folder doesn't exists");
+    }
+
+    const newFolder = this.prisma.folder.update({
+      where: {
+        id: +dto.id,
+      },
+      data: {
+        title: dto.title,
+      },
+    });
+
+    return newFolder;
+  }
+
+  async deleteFolder(id: string) {
+    const folder = await this.findFolder(id);
+
+    if (!folder) {
+      throw new ConflictException("folder doesn't exists");
+    }
+
+    return this.prisma.folder.delete({
+      where: {
+        id: folder.id,
+      },
+    });
+  }
+}
