@@ -33,14 +33,6 @@ export class FolderService {
   }
 
   async editFolder(dto: CreateFolderDto) {
-    if (!dto.title) {
-      throw new ConflictException('Data is empty');
-    }
-
-    if (!dto.id) {
-      throw new ConflictException('ID is empty');
-    }
-
     const folder = await this.findFolder(dto.id);
 
     if (!folder) {
@@ -52,7 +44,7 @@ export class FolderService {
         id: +dto.id,
       },
       data: {
-        title: dto.title,
+        title: dto.title || folder.title,
       },
     });
 

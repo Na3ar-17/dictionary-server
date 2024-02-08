@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { FolderService } from './folder.service';
 import { CreateFolderDto } from './dto/folder.dto';
@@ -24,7 +24,7 @@ export class FolderController {
     return this.folderService.createFolder(dto);
   }
 
-  @Patch('/update')
+  @Put('/update')
   async editFolder(@Body() dto: CreateFolderDto) {
     return this.folderService.editFolder(dto);
   }

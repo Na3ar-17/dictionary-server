@@ -29,7 +29,7 @@ model Row {
   word        String
   translation String
   folder      Folder? @relation(fields: [folderId], references: [id])
-  folderId    Int?
+  folderId    Int?  @map("folder_id")
 
   @@map("row")
 }
