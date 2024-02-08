@@ -11,6 +11,7 @@ export class RowService {
   ) {}
 
   async findRow(folderId: string, rowId: string) {
+    if (!rowId || !folderId) throw new ConflictException('id is undefined');
     return await this.prisma.row.findUnique({
       where: {
         id: +rowId,

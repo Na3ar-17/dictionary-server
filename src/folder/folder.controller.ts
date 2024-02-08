@@ -24,9 +24,9 @@ export class FolderController {
     return this.folderService.createFolder(dto);
   }
 
-  @Put('/update')
-  async editFolder(@Body() dto: CreateFolderDto) {
-    return this.folderService.editFolder(dto);
+  @Put('/update/:id')
+  async editFolder(@Body() dto: CreateFolderDto, @Param('id') id: string) {
+    return this.folderService.editFolder(dto, id);
   }
 
   @Delete('/delete/:id')

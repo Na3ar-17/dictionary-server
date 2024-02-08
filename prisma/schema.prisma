@@ -26,8 +26,8 @@ model Folder {
 
 model Row {
   id          Int     @default(autoincrement()) @id
-  word        String
-  translation String
+  word        String   @default("empty") 
+  translation String  @default("empty") 
   folder      Folder? @relation(fields: [folderId], references: [id])
   folderId    Int?  @map("folder_id")
 

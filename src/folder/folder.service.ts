@@ -32,8 +32,11 @@ export class FolderService {
     return folder;
   }
 
-  async editFolder(dto: CreateFolderDto) {
-    const folder = await this.findFolder(dto.id);
+  async editFolder(dto: CreateFolderDto, id: string) {
+    const folder = await this.findFolder(id);
+    if (!id) {
+      throw new ConflictException('Id is undefined');
+    }
 
     if (!folder) {
       throw new ConflictException("folder doesn't exists");
@@ -41,7 +44,7 @@ export class FolderService {
 
     const newFolder = this.prisma.folder.update({
       where: {
-        id: +dto.id,
+        id: +id,
       },
       data: {
         title: dto.title || folder.title,
