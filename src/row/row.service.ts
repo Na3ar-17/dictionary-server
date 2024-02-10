@@ -20,6 +20,10 @@ export class RowService {
     });
   }
 
+  async getOneRow(folderId: string, rowId: string) {
+    return await this.findRow(folderId, rowId);
+  }
+
   async getRows(folderId: string) {
     return await this.prisma.row.findMany({
       where: {
@@ -35,8 +39,8 @@ export class RowService {
 
     const newRow = await this.prisma.row.create({
       data: {
-        word: dto.word,
-        translation: dto.translation,
+        word: dto.word !== '' ? dto.word : 'empty',
+        translation: dto.translation !== '' ? dto.translation : 'empty',
         folderId: +folderId,
       },
     });
