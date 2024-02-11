@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Put,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { RowService } from './row.service';
 import { CreateRowDto } from './dto/row.dto';
@@ -28,6 +30,7 @@ export class RowController {
     return await this.rowService.getOneRow(folderId, rowId);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('/create')
   async createRow(
     @Body('folderId') folderId: string,
@@ -36,6 +39,7 @@ export class RowController {
     return await this.rowService.createRow(folderId, dto);
   }
 
+  @UsePipes(new ValidationPipe())
   @Delete('/delete/:folderId/:rowId')
   async deleteRow(
     @Param('folderId') folderId: string,

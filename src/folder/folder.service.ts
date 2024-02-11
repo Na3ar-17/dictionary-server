@@ -18,18 +18,22 @@ export class FolderService {
     return this.prisma.folder.findMany();
   }
 
-  async createFolder(dto: CreateFolderDto) {
-    if (!dto.title) {
-      throw new ConflictException('Data is empty');
-    }
+  async getOneFolder(folderId: string) {
+    return await this.prisma.folder.findUnique({
+      where: {
+        id: +folderId,
+      },
+    });
+  }
 
-    const folder = this.prisma.folder.create({
+  async createFolder(dto: CreateFolderDto) {
+    const newFolder = this.prisma.folder.create({
       data: {
         title: dto.title,
       },
     });
 
-    return folder;
+    return newFolder;
   }
 
   async editFolder(dto: CreateFolderDto, id: string) {
