@@ -26,10 +26,11 @@ model Folder {
 
 model Row {
   id          Int     @default(autoincrement()) @id
-  word        String   @default("empty") 
-  translation String  @default("empty") 
+  word        String   @default("Empty") 
+  translation String  @default("Empty") 
   folder      Folder? @relation(fields: [folderId], references: [id])
   folderId    Int?  @map("folder_id")
 
   @@map("row")
 }
+

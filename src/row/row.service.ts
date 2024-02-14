@@ -20,6 +20,17 @@ export class RowService {
     });
   }
 
+  async getRandomRow(folderId: string) {
+    const rows = await this.getRows(folderId);
+    const indexes = rows.map((el) => el.id.toString());
+
+    const randomIndex = Math.floor(Math.random() * indexes.length);
+
+    const row = await this.getOneRow(folderId, indexes[randomIndex]);
+
+    return row;
+  }
+
   async getOneRow(folderId: string, rowId: string) {
     return await this.findRow(folderId, rowId);
   }
@@ -33,10 +44,6 @@ export class RowService {
   }
 
   async createRow(folderId: string, dto: CreateRowDto) {
-    if (!dto) {
-      throw new ConflictException('Data is empty');
-    }
-
     const newRow = await this.prisma.row.create({
       data: {
         word: dto.word !== '' ? dto.word : 'empty',

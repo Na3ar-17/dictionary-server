@@ -22,6 +22,11 @@ export class RowController {
     return await this.rowService.getRows(folderId);
   }
 
+  @Get('/get-random/:folderId')
+  async getRandomRow(@Param('folderId') folderId: string) {
+    return await this.rowService.getRandomRow(folderId);
+  }
+
   @Get('/get-one/:folderId/:rowId')
   async getOneRow(
     @Param('folderId') folderId: string,
