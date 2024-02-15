@@ -2,12 +2,14 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateRowDto } from './dto/row.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FolderService } from 'src/folder/folder.service';
+import { OpenaiService } from 'src/openai/openai.service';
 
 @Injectable()
 export class RowService {
   constructor(
     private prisma: PrismaService,
     private folderService: FolderService,
+    private openaiService: OpenaiService,
   ) {}
 
   async findRow(folderId: string, rowId: string) {
