@@ -19,6 +19,7 @@ model Folder {
   title       String  @unique
   itemsCount Int @default(0) @map("items_count")
   rows        Row[]   
+  statistics Statistics[]
 
   @@map("folder")
 
@@ -32,5 +33,18 @@ model Row {
   folderId    Int?  @map("folder_id")
 
   @@map("row")
+}
+
+model Statistics {
+  id          Int     @default(autoincrement()) @id
+  folder Folder? @relation(fields: [folderId], references: [id])
+  sessions Int @default(0)
+  presentOfCorrectUnswers Float @default(0.0) @map("present_of_correct_unswers")
+  lastSession DateTime @default(now()) @map("last_session")
+  createdWords Int @default(0) @map("created_words")
+  deletedWords Int @default(0) @map("deleted_words")
+  folderId Int?  @map("folder_id")
+
+  @@map("statistics")
 }
 
