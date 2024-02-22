@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFolderDto } from './dto/folder.dto';
 
@@ -7,11 +11,17 @@ export class FolderService {
   constructor(private prisma: PrismaService) {}
 
   async findFolder(id: string) {
-    return this.prisma.folder.findUnique({
+    const folder = this.prisma.folder.findUnique({
       where: {
         id: +id,
       },
     });
+
+    if (!folder) {
+      throw new NotFoundException("Folder doesn't exists");
+    }
+
+    return folder;
   }
 
   async getFolders() {
@@ -19,11 +29,8 @@ export class FolderService {
   }
 
   async getOneFolder(folderId: string) {
-    return await this.prisma.folder.findUnique({
-      where: {
-        id: +folderId,
-      },
-    });
+    const folder = await this.findFolder(folderId);
+    return folder;
   }
 
   async createFolder(dto: CreateFolderDto) {
@@ -38,13 +45,6 @@ export class FolderService {
 
   async editFolder(dto: CreateFolderDto, id: string) {
     const folder = await this.findFolder(id);
-    if (!id) {
-      throw new ConflictException('Id is undefined');
-    }
-
-    if (!folder) {
-      throw new ConflictException("folder doesn't exists");
-    }
 
     const newFolder = this.prisma.folder.update({
       where: {
@@ -60,10 +60,6 @@ export class FolderService {
 
   async deleteFolder(id: string) {
     const folder = await this.findFolder(id);
-
-    if (!folder) {
-      throw new ConflictException("folder doesn't exists");
-    }
 
     return this.prisma.folder.delete({
       where: {

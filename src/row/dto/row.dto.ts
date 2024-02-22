@@ -6,4 +6,7 @@ export class CreateRowDto {
 
   @IsString()
   translation: string;
+
+  @IsString()
+  transcription?: string;
 }

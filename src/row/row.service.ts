@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRowDto } from './dto/row.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FolderService } from 'src/folder/folder.service';
@@ -13,13 +17,18 @@ export class RowService {
   ) {}
 
   async findRow(folderId: string, rowId: string) {
-    if (!rowId || !folderId) throw new ConflictException('id is undefined');
-    return await this.prisma.row.findUnique({
+    const row = await this.prisma.row.findUnique({
       where: {
         id: +rowId,
         folderId: +folderId,
       },
     });
+
+    if (!row) {
+      throw new NotFoundException("Row doesn't exists");
+    }
+
+    return row;
   }
 
   async getRandomRow(folderId: string) {
@@ -48,8 +57,9 @@ export class RowService {
   async createRow(folderId: string, dto: CreateRowDto) {
     const newRow = await this.prisma.row.create({
       data: {
-        word: dto.word !== '' ? dto.word : 'empty',
-        translation: dto.translation !== '' ? dto.translation : 'empty',
+        word: dto.word,
+        translation: dto.translation,
+        transcription: dto.transcription || 'empty',
         folderId: +folderId,
       },
     });
@@ -70,10 +80,6 @@ export class RowService {
 
   async deleteRow(folderId: string, rowId: string) {
     const row = await this.findRow(folderId, rowId);
-
-    if (!row) {
-      throw new ConflictException("Row doesn't exists");
-    }
 
     const folder = await this.folderService.findFolder(folderId);
 
@@ -97,10 +103,6 @@ export class RowService {
   async updateRow(folderId: string, rowId: string, dto: CreateRowDto) {
     const row = await this.findRow(folderId, rowId);
 
-    if (!row) {
-      throw new ConflictException("Row doesn't exists");
-    }
-
     return await this.prisma.row.update({
       where: {
         id: +rowId,
@@ -109,6 +111,7 @@ export class RowService {
       data: {
         word: dto.word || row.word,
         translation: dto.translation || row.translation,
+        transcription: dto.transcription || row.transcription,
       },
     });
   }
