@@ -41,10 +41,6 @@ export class StatisticsService {
     return deletedStatistics;
   }
 
-  async getAll() {
-    return await this.prisma.statistics.findMany();
-  }
-
   async endSession(folderId: string) {
     const statistics = await this.getStatistics(folderId);
 
@@ -58,5 +54,32 @@ export class StatisticsService {
     });
 
     return endedSession;
+  }
+
+  async incrementCreatedWords(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
+    const updated = await this.prisma.statistics.update({
+      where: {
+        folderId: +folderId,
+      },
+      data: {
+        createdWords: statistics.createdWords + 1,
+      },
+    });
+
+    return updated;
+  }
+  async incrementDeletedWords(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
+    const updated = await this.prisma.statistics.update({
+      where: {
+        folderId: +folderId,
+      },
+      data: {
+        deletedWords: statistics.deletedWords + 1,
+      },
+    });
+
+    return updated;
   }
 }

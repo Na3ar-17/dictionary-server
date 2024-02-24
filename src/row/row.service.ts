@@ -6,12 +6,14 @@ import {
 import { CreateRowDto } from './dto/row.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FolderService } from 'src/folder/folder.service';
+import { StatisticsService } from 'src/statistics/statistics.service';
 
 @Injectable()
 export class RowService {
   constructor(
     private prisma: PrismaService,
     private folderService: FolderService,
+    private statisticsService: StatisticsService,
   ) {}
 
   async findRow(folderId: string, rowId: string) {
@@ -73,12 +75,13 @@ export class RowService {
       },
     });
 
-    return newRow;
+    const updateStatistics =
+      await this.statisticsService.incrementCreatedWords(folderId);
+
+    return { newRow, updateStatistics };
   }
 
   async deleteRow(folderId: string, rowId: string) {
-    const row = await this.findRow(folderId, rowId);
-
     const folder = await this.folderService.findFolder(folderId);
 
     const updatedFolder = await this.prisma.folder.update({
@@ -90,12 +93,16 @@ export class RowService {
       },
     });
 
-    return await this.prisma.row.delete({
+    const updateStatistics =
+      await this.statisticsService.incrementDeletedWords(folderId);
+    const deletedRow = await this.prisma.row.delete({
       where: {
         id: +rowId,
         folderId: +folderId,
       },
     });
+
+    return { deletedRow, updateStatistics };
   }
 
   async updateRow(folderId: string, rowId: string, dto: CreateRowDto) {
