@@ -24,9 +24,7 @@ export class StatisticsService {
     const newStatistics = await this.prisma.statistics.create({
       data: {
         folderId: +folderId,
-        lastSession: new Date().toLocaleString('de-DE', {
-          timeZone: 'Europe/Berlin',
-        }),
+        lastSession: new Date().toISOString(),
         createdAt: new Date(),
       },
     });
@@ -62,7 +60,7 @@ export class StatisticsService {
 
   async incrementCreatedRows(folderId: string) {
     const statistics = await this.getStatistics(folderId);
-    const updated = await this.prisma.statistics.update({
+    const updatedCreatedRows = await this.prisma.statistics.update({
       where: {
         folderId: +folderId,
       },
@@ -71,11 +69,11 @@ export class StatisticsService {
       },
     });
 
-    return updated;
+    return updatedCreatedRows;
   }
   async incrementDeletedRows(folderId: string) {
     const statistics = await this.getStatistics(folderId);
-    const updated = await this.prisma.statistics.update({
+    const updatedDeletedRows = await this.prisma.statistics.update({
       where: {
         folderId: +folderId,
       },
@@ -84,6 +82,43 @@ export class StatisticsService {
       },
     });
 
+    return updatedDeletedRows;
+  }
+
+  async incrementRowsCount(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
+    const updated = await this.prisma.statistics.update({
+      where: {
+        folderId: +folderId,
+      },
+      data: {
+        rowsCount: statistics.rowsCount + 1,
+      },
+    });
+
     return updated;
+  }
+
+  async decrementRowsCount(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
+
+    if (statistics.rowsCount > 0) {
+      const updated = await this.prisma.statistics.update({
+        where: {
+          folderId: +folderId,
+        },
+        data: {
+          rowsCount: statistics.rowsCount - 1,
+        },
+      });
+
+      return updated;
+    }
+  }
+
+  async getRowsCount(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
+
+    return statistics.rowsCount;
   }
 }

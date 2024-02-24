@@ -75,10 +75,13 @@ export class RowService {
       },
     });
 
-    const updateStatistics =
+    const updateCreatedRows =
       await this.statisticsService.incrementCreatedRows(folderId);
 
-    return { newRow, updateStatistics };
+    const updateRowsCount =
+      await this.statisticsService.incrementRowsCount(folderId);
+
+    return newRow;
   }
 
   async deleteRow(folderId: string, rowId: string) {
@@ -93,8 +96,12 @@ export class RowService {
       },
     });
 
-    const updateStatistics =
+    const updatedDeletedRows =
       await this.statisticsService.incrementDeletedRows(folderId);
+
+    const updatedWordsCount =
+      await this.statisticsService.decrementRowsCount(folderId);
+
     const deletedRow = await this.prisma.row.delete({
       where: {
         id: +rowId,
@@ -102,7 +109,7 @@ export class RowService {
       },
     });
 
-    return { deletedRow, updateStatistics };
+    return deletedRow;
   }
 
   async updateRow(folderId: string, rowId: string, dto: CreateRowDto) {
