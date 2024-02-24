@@ -76,7 +76,7 @@ export class RowService {
     });
 
     const updateStatistics =
-      await this.statisticsService.incrementCreatedWords(folderId);
+      await this.statisticsService.incrementCreatedRows(folderId);
 
     return { newRow, updateStatistics };
   }
@@ -94,7 +94,7 @@ export class RowService {
     });
 
     const updateStatistics =
-      await this.statisticsService.incrementDeletedWords(folderId);
+      await this.statisticsService.incrementDeletedRows(folderId);
     const deletedRow = await this.prisma.row.delete({
       where: {
         id: +rowId,

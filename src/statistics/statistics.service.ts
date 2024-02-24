@@ -24,7 +24,10 @@ export class StatisticsService {
     const newStatistics = await this.prisma.statistics.create({
       data: {
         folderId: +folderId,
-        lastSession: new Date(),
+        lastSession: new Date().toLocaleString('de-DE', {
+          timeZone: 'Europe/Berlin',
+        }),
+        createdAt: new Date(),
       },
     });
 
@@ -50,33 +53,34 @@ export class StatisticsService {
       },
       data: {
         sessions: statistics.sessions + 1,
+        lastSession: new Date().toISOString(),
       },
     });
 
     return endedSession;
   }
 
-  async incrementCreatedWords(folderId: string) {
+  async incrementCreatedRows(folderId: string) {
     const statistics = await this.getStatistics(folderId);
     const updated = await this.prisma.statistics.update({
       where: {
         folderId: +folderId,
       },
       data: {
-        createdWords: statistics.createdWords + 1,
+        createdRows: statistics.createdRows + 1,
       },
     });
 
     return updated;
   }
-  async incrementDeletedWords(folderId: string) {
+  async incrementDeletedRows(folderId: string) {
     const statistics = await this.getStatistics(folderId);
     const updated = await this.prisma.statistics.update({
       where: {
         folderId: +folderId,
       },
       data: {
-        deletedWords: statistics.deletedWords + 1,
+        deletedRows: statistics.deletedRows + 1,
       },
     });
 
