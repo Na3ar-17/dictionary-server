@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFolderDto } from './dto/folder.dto';
+import { StatisticsService } from 'src/statistics/statistics.service';
 
 @Injectable()
 export class FolderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private statisticsService: StatisticsService,
+  ) {}
 
   async findFolder(id: string) {
     const folder = this.prisma.folder.findUnique({
@@ -40,6 +44,10 @@ export class FolderService {
       },
     });
 
+    const newStatistics = await this.statisticsService.createStatistics(
+      (await newFolder).id.toString(),
+    );
+
     return newFolder;
   }
 
@@ -58,8 +66,9 @@ export class FolderService {
     return newFolder;
   }
 
-  async deleteFolder(id: string) {
-    const folder = await this.findFolder(id);
+  async deleteFolder(folderId: string) {
+    const folder = await this.findFolder(folderId);
+    // const deletedStatistics = await this.statisticsService.deleteStatistics(folderId)
 
     return this.prisma.folder.delete({
       where: {

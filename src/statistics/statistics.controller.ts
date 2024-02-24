@@ -18,11 +18,6 @@ export class StatisticsController {
     return await this.statisticsService.getAll();
   }
 
-  @Post('/create-or-start/:folderId')
-  async createSession(@Param('folderId') folderId: string) {
-    return await this.statisticsService.createSession(folderId);
-  }
-
   @Put('end-session/:folderId/:statisticsId')
   async endSession(
     @Param('folderId') folderId: string,

@@ -4,11 +4,11 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { FolderModule } from './folder/folder.module';
 import { RowModule } from './row/row.module';
-import { OpenaiModule } from './openai/openai.module';
+
 import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
-  imports: [FolderModule, RowModule, OpenaiModule, StatisticsModule],
+  imports: [FolderModule, RowModule, StatisticsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class StatisticsService {
   constructor(private prisma: PrismaService) {}
+
   async getStatistics(folderId: string, statisticsId: string) {
     const statistics = await this.prisma.statistics.findUnique({
       where: {
@@ -20,18 +21,29 @@ export class StatisticsService {
     return statistics;
   }
 
-  async getAll() {
-    return await this.prisma.statistics.findMany();
-  }
-
-  async createSession(folderId: string) {
-    const newSession = await this.prisma.statistics.create({
+  async createStatistics(folderId: string) {
+    const newStatistics = await this.prisma.statistics.create({
       data: {
         folderId: +folderId,
       },
     });
 
-    return newSession;
+    return newStatistics;
+  }
+
+  async deleteStatistics(folderId: string, statisticsId: string) {
+    const deletedStatistics = await this.prisma.statistics.delete({
+      where: {
+        folderId: +folderId,
+        id: +statisticsId,
+      },
+    });
+
+    return deletedStatistics;
+  }
+
+  async getAll() {
+    return await this.prisma.statistics.findMany();
   }
 
   async endSession(folderId: string, statisticsId: string) {
