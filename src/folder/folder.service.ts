@@ -68,12 +68,15 @@ export class FolderService {
 
   async deleteFolder(folderId: string) {
     const folder = await this.findFolder(folderId);
-    // const deletedStatistics = await this.statisticsService.deleteStatistics(folderId)
+    const deletedStatistics =
+      await this.statisticsService.deleteStatistics(folderId);
 
-    return this.prisma.folder.delete({
+    const deletedFolder = await this.prisma.folder.delete({
       where: {
         id: folder.id,
       },
     });
+
+    return deletedFolder;
   }
 }

@@ -4,11 +4,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class StatisticsService {
   constructor(private prisma: PrismaService) {}
 
-  async getStatistics(folderId: string, statisticsId: string) {
+  async getStatistics(folderId: string) {
     const statistics = await this.prisma.statistics.findUnique({
       where: {
         folderId: +folderId,
-        id: +statisticsId,
       },
     });
 
@@ -25,17 +24,17 @@ export class StatisticsService {
     const newStatistics = await this.prisma.statistics.create({
       data: {
         folderId: +folderId,
+        lastSession: new Date(),
       },
     });
 
     return newStatistics;
   }
 
-  async deleteStatistics(folderId: string, statisticsId: string) {
+  async deleteStatistics(folderId: string) {
     const deletedStatistics = await this.prisma.statistics.delete({
       where: {
         folderId: +folderId,
-        id: +statisticsId,
       },
     });
 
@@ -46,13 +45,12 @@ export class StatisticsService {
     return await this.prisma.statistics.findMany();
   }
 
-  async endSession(folderId: string, statisticsId: string) {
-    const statistics = await this.getStatistics(folderId, statisticsId);
+  async endSession(folderId: string) {
+    const statistics = await this.getStatistics(folderId);
 
     const endedSession = await this.prisma.statistics.update({
       where: {
         folderId: statistics.folderId,
-        id: statistics.id,
       },
       data: {
         sessions: statistics.sessions + 1,
