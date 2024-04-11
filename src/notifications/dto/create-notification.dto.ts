@@ -1,9 +1,9 @@
 import { IsString } from 'class-validator';
 
-export class CreateFolderDto {
+export class CreateNotificationDto {
   @IsString()
-  title: string;
+  message: string;
 
   @IsString()
-  bookMarkId: string;
+  location: string;
 }

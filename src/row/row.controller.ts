@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
@@ -39,18 +38,19 @@ export class RowController {
   @Post('/create')
   async createRow(
     @Body('folderId') folderId: string,
+    @Body('bookMarkId') bookMarkId: string,
     @Body() dto: CreateRowDto,
   ) {
-    return await this.rowService.createRow(folderId, dto);
+    return await this.rowService.createRow(folderId, bookMarkId, dto);
   }
 
-  @UsePipes(new ValidationPipe())
-  @Delete('/delete/:folderId/:rowId')
+  @Delete('/delete/:folderId/:rowId/:bookMarkId')
   async deleteRow(
     @Param('folderId') folderId: string,
     @Param('rowId') rowId: string,
+    @Param('bookMarkId') bookMarkId: string,
   ) {
-    return await this.rowService.deleteRow(folderId, rowId);
+    return await this.rowService.deleteRow(folderId, rowId, bookMarkId);
   }
 
   @Put('/update')

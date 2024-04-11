@@ -19,8 +19,8 @@ export class RowService {
   async findRow(folderId: string, rowId: string) {
     const row = await this.prisma.row.findUnique({
       where: {
-        id: +rowId,
-        folderId: +folderId,
+        id: rowId,
+        folderId: folderId,
       },
     });
 
@@ -31,15 +31,29 @@ export class RowService {
     return row;
   }
 
+  history = new Set();
+
   async getRandomRow(folderId: string) {
     const rows = await this.getRows(folderId);
-    const indexes = rows.map((el) => el.id.toString());
 
-    const randomIndex = Math.floor(Math.random() * indexes.length);
+    this.shuffleArray(rows);
 
-    const row = await this.getOneRow(folderId, indexes[randomIndex]);
+    for (const row of rows) {
+      if (!this.history.has(row.id)) {
+        this.history.add(row.id);
+        return row;
+      }
+    }
 
-    return row;
+    this.history.clear();
+    return [];
+  }
+
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
   }
 
   async getOneRow(folderId: string, rowId: string) {
@@ -49,26 +63,27 @@ export class RowService {
   async getRows(folderId: string) {
     return await this.prisma.row.findMany({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
+      orderBy: [{ createdAt: 'desc' }],
     });
   }
 
-  async createRow(folderId: string, dto: CreateRowDto) {
+  async createRow(folderId: string, bookMarkId: string, dto: CreateRowDto) {
     const newRow = await this.prisma.row.create({
       data: {
         word: dto.word,
         translation: dto.translation,
-        transcription: dto.transcription || 'empty',
-        folderId: +folderId,
+        transcription: dto.transcription || '',
+        folderId: folderId,
       },
     });
 
-    const folder = await this.folderService.findFolder(folderId);
+    const folder = await this.folderService.getOne(folderId, bookMarkId);
 
     const updatedFolder = await this.prisma.folder.update({
       where: {
-        id: +folderId,
+        id: folderId,
       },
       data: {
         itemsCount: folder.itemsCount + 1,
@@ -84,12 +99,12 @@ export class RowService {
     return newRow;
   }
 
-  async deleteRow(folderId: string, rowId: string) {
-    const folder = await this.folderService.findFolder(folderId);
+  async deleteRow(folderId: string, rowId: string, bookMarkId) {
+    const folder = await this.folderService.getOne(folderId, bookMarkId);
 
     const updatedFolder = await this.prisma.folder.update({
       where: {
-        id: +folderId,
+        id: folderId,
       },
       data: {
         itemsCount: folder.itemsCount - 1,
@@ -104,12 +119,10 @@ export class RowService {
 
     const deletedRow = await this.prisma.row.delete({
       where: {
-        id: +rowId,
-        folderId: +folderId,
+        id: rowId,
+        folderId: folderId,
       },
     });
-
-    return deletedRow;
   }
 
   async updateRow(folderId: string, rowId: string, dto: CreateRowDto) {
@@ -117,13 +130,13 @@ export class RowService {
 
     return await this.prisma.row.update({
       where: {
-        id: +rowId,
-        folderId: +folderId,
+        id: rowId,
+        folderId: folderId,
       },
       data: {
         word: dto.word || row.word,
         translation: dto.translation || row.translation,
-        transcription: dto.transcription || row.transcription,
+        transcription: dto.transcription,
       },
     });
   }

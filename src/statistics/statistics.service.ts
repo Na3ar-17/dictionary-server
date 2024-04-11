@@ -7,7 +7,7 @@ export class StatisticsService {
   async getStatistics(folderId: string) {
     const statistics = await this.prisma.statistics.findUnique({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
     });
 
@@ -20,10 +20,18 @@ export class StatisticsService {
     return statistics;
   }
 
+  async getAll() {
+    return await this.prisma.statistics.findMany();
+  }
+
+  async getOneById(folderId: string) {
+    return await this.getStatistics(folderId);
+  }
+
   async createStatistics(folderId: string) {
     const newStatistics = await this.prisma.statistics.create({
       data: {
-        folderId: +folderId,
+        folderId: folderId,
         lastSession: new Date().toISOString(),
         createdAt: new Date(),
       },
@@ -35,7 +43,7 @@ export class StatisticsService {
   async deleteStatistics(folderId: string) {
     const deletedStatistics = await this.prisma.statistics.delete({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
     });
 
@@ -62,7 +70,7 @@ export class StatisticsService {
     const statistics = await this.getStatistics(folderId);
     const updatedCreatedRows = await this.prisma.statistics.update({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
       data: {
         createdRows: statistics.createdRows + 1,
@@ -75,7 +83,7 @@ export class StatisticsService {
     const statistics = await this.getStatistics(folderId);
     const updatedDeletedRows = await this.prisma.statistics.update({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
       data: {
         deletedRows: statistics.deletedRows + 1,
@@ -89,7 +97,7 @@ export class StatisticsService {
     const statistics = await this.getStatistics(folderId);
     const updated = await this.prisma.statistics.update({
       where: {
-        folderId: +folderId,
+        folderId: folderId,
       },
       data: {
         rowsCount: statistics.rowsCount + 1,
@@ -105,7 +113,7 @@ export class StatisticsService {
     if (statistics.rowsCount > 0) {
       const updated = await this.prisma.statistics.update({
         where: {
-          folderId: +folderId,
+          folderId: folderId,
         },
         data: {
           rowsCount: statistics.rowsCount - 1,
@@ -120,5 +128,13 @@ export class StatisticsService {
     const statistics = await this.getStatistics(folderId);
 
     return statistics.rowsCount;
+  }
+
+  async makeCorrectAnswer(folderId: string) {
+    const statistic = await this.getStatistics(folderId);
+
+    const allRows = statistic.rowsCount;
+
+    return allRows;
   }
 }

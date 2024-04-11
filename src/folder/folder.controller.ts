@@ -16,14 +16,17 @@ import { CreateFolderDto } from './dto/folder.dto';
 export class FolderController {
   constructor(private readonly folderService: FolderService) {}
 
-  @Get('/get-all')
-  async getFolders() {
-    return this.folderService.getFolders();
+  @Get('/:bookMarkId')
+  async getFolders(@Param('bookMarkId') bookMarkId: string) {
+    return this.folderService.getFolders(bookMarkId);
   }
 
-  @Get('/get-one/:folderId')
-  async getOneFolder(@Param('folderId') folderId: string) {
-    return this.folderService.getOneFolder(folderId);
+  @Get('/get-one/:folderId/:bookMarkId')
+  async getOne(
+    @Param('folderId') folderId: string,
+    @Param('bookMarkId') bookMarkId: string,
+  ) {
+    return this.folderService.getOne(folderId, bookMarkId);
   }
 
   @UsePipes(new ValidationPipe())
@@ -38,8 +41,11 @@ export class FolderController {
     return this.folderService.editFolder(dto, id);
   }
 
-  @Delete('/delete/:id')
-  async deleteFolder(@Param('id') id: string) {
-    return this.folderService.deleteFolder(id);
+  @Delete('/delete/:id/:bookMarkId')
+  async deleteFolder(
+    @Param('id') id: string,
+    @Param('bookMarkId') bookMarkId: string,
+  ) {
+    return this.folderService.deleteFolder(id, bookMarkId);
   }
 }

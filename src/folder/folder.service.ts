@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFolderDto } from './dto/folder.dto';
 import { StatisticsService } from 'src/statistics/statistics.service';
+import { stringToSlug } from 'src/utils/utils';
 
 @Injectable()
 export class FolderService {
@@ -10,10 +15,11 @@ export class FolderService {
     private statisticsService: StatisticsService,
   ) {}
 
-  async findFolder(id: string) {
+  async getOne(id: string, bookMarkId: string) {
     const folder = this.prisma.folder.findUnique({
       where: {
-        id: +id,
+        id,
+        bookMarkId,
       },
     });
 
@@ -24,19 +30,33 @@ export class FolderService {
     return folder;
   }
 
-  async getFolders() {
-    return this.prisma.folder.findMany();
-  }
-
-  async getOneFolder(folderId: string) {
-    const folder = await this.findFolder(folderId);
-    return folder;
+  async getFolders(bookMarkId: string) {
+    return this.prisma.folder.findMany({
+      where: {
+        bookMarkId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async createFolder(dto: CreateFolderDto) {
+    const slug = stringToSlug(dto.title);
+
+    const folders = await this.getFolders(dto.bookMarkId);
+
+    await folders.forEach((el) => {
+      if (el.title === dto.title) {
+        throw new ConflictException('Title must be unique');
+      }
+    });
+
     const newFolder = this.prisma.folder.create({
       data: {
         title: dto.title,
+        slug,
+        bookMarkId: dto.bookMarkId,
       },
     });
 
@@ -47,12 +67,19 @@ export class FolderService {
     return newFolder;
   }
 
-  async editFolder(dto: CreateFolderDto, id: string) {
-    const folder = await this.findFolder(id);
+  async editFolder(dto: CreateFolderDto, folderId: string) {
+    const folder = await this.getOne(folderId, dto.bookMarkId);
+    const folders = await this.getFolders(dto.bookMarkId);
+
+    await folders.forEach((el) => {
+      if (el.title === dto.title) {
+        throw new ConflictException('Title must be unique');
+      }
+    });
 
     const newFolder = this.prisma.folder.update({
       where: {
-        id: +id,
+        id: folderId,
       },
       data: {
         title: dto.title || folder.title,
@@ -62,8 +89,9 @@ export class FolderService {
     return newFolder;
   }
 
-  async deleteFolder(folderId: string) {
-    const folder = await this.findFolder(folderId);
+  async deleteFolder(folderId: string, bookMarkId: string) {
+    const folder = await this.getOne(folderId, bookMarkId);
+
     const deletedStatistics =
       await this.statisticsService.deleteStatistics(folderId);
 
@@ -72,7 +100,5 @@ export class FolderService {
         id: folder.id,
       },
     });
-
-    return deletedFolder;
   }
 }

@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,16 +8,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model BookMark {
+  id String @id @default(cuid())
+  title String @unique
 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
+  folders Folder[]
+
+  @@map("book_mark")
+}
 
 
 model Folder {
-  id          Int       @default(autoincrement()) @id
+  id          String       @default(cuid()) @id
   title       String    @unique
   itemsCount  Int       @default(0) @map("items_count")
+
+  bookMarkId String @map("book_mark_id")
+
+  bookMark BookMark? @relation(fields: [bookMarkId], references: [id])
+
+  slug String? @unique
+
   rows        Row[]
+
   statistics  Statistics? 
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at") 
 
   @@map("folder")
 }
@@ -27,26 +45,43 @@ model Folder {
 
 
 model Row {
-  id          Int     @default(autoincrement()) @id
+  id          String     @default(cuid()) @id
   word        String  
   translation String  
-  transcription String @default("empty")
+  transcription String 
+
   folder      Folder? @relation(fields: [folderId], references: [id])
-  folderId    Int?  @map("folder_id")
+  folderId    String?  @map("folder_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at") 
 
   @@map("row")
 }
 
 model Statistics {
-  folderId              Int       @map("folder_id") @id
+  folderId              String      @map("folder_id") @id
   folder                Folder?   @relation(fields: [folderId], references: [id])
   sessions              Int       @default(0)
   createdAt  DateTime   @db.Date  @map("created_at")
-  presentOfCorrectUnswers Float @default(0.0) @map("present_of_correct_unswers")
+  updatedAt DateTime @updatedAt @default(now())  @map("updated_at") 
+  presentOfCorrectUnswers Int @default(0) @map("present_of_correct_unswers")
   lastSession DateTime?   @map("last_session") 
   createdRows          Int       @default(0) @map("created_rows")
   deletedRows          Int       @default(0) @map("deleted_rows")
   rowsCount             Int       @map("rows_count") @default(0)
 
   @@map("statistics")
+}
+
+
+model Notifications {
+  id String @id @default(cuid())
+  message String
+  location String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notifications")
 }
