@@ -10,7 +10,7 @@ datasource db {
 
 model BookMark {
   id String @id @default(cuid())
-  title String @unique
+  title String 
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
@@ -30,7 +30,6 @@ model Folder {
 
   bookMark BookMark? @relation(fields: [bookMarkId], references: [id])
 
-  slug String? @unique
 
   rows        Row[]
 
@@ -52,6 +51,8 @@ model Row {
 
   folder      Folder? @relation(fields: [folderId], references: [id])
   folderId    String?  @map("folder_id")
+
+  bookMarkId String @map("book_mark_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at") 

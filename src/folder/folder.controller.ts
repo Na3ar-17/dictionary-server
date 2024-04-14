@@ -30,9 +30,9 @@ export class FolderController {
   }
 
   @UsePipes(new ValidationPipe())
-  @Post('/create')
-  async createFolder(@Body() dto: CreateFolderDto) {
-    return this.folderService.createFolder(dto);
+  @Post('/create/:bookMarkId')
+  async createFolder(@Param('bookMarkId') bookMarkId: string) {
+    return this.folderService.createFolder(bookMarkId);
   }
 
   @UsePipes(new ValidationPipe())

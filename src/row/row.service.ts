@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRowDto } from './dto/row.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FolderService } from 'src/folder/folder.service';
@@ -69,13 +65,18 @@ export class RowService {
     });
   }
 
-  async createRow(folderId: string, bookMarkId: string, dto: CreateRowDto) {
+  async createRow(folderId: string, bookMarkId: string) {
     const newRow = await this.prisma.row.create({
       data: {
-        word: dto.word,
-        translation: dto.translation,
-        transcription: dto.transcription || '',
-        folderId: folderId,
+        word: '',
+        translation: '',
+        transcription: '',
+        bookMarkId: bookMarkId,
+        folder: {
+          connect: {
+            id: folderId,
+          },
+        },
       },
     });
 
@@ -99,7 +100,22 @@ export class RowService {
     return newRow;
   }
 
-  async deleteRow(folderId: string, rowId: string, bookMarkId) {
+  async tmp(folderId: string, bookMarkId: string) {
+    const folder = await this.folderService.getOne(folderId, bookMarkId);
+
+    const updatedFolder = await this.prisma.folder.update({
+      where: {
+        id: folder.id,
+      },
+      data: {
+        itemsCount: 1,
+      },
+    });
+
+    return updatedFolder;
+  }
+
+  async deleteRow(folderId: string, rowId: string, bookMarkId: string) {
     const folder = await this.folderService.getOne(folderId, bookMarkId);
 
     const updatedFolder = await this.prisma.folder.update({
@@ -137,6 +153,14 @@ export class RowService {
         word: dto.word || row.word,
         translation: dto.translation || row.translation,
         transcription: dto.transcription,
+      },
+    });
+  }
+
+  async deleteAll(bookMarkId: string) {
+    return await this.prisma.row.deleteMany({
+      where: {
+        bookMarkId: bookMarkId,
       },
     });
   }

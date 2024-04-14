@@ -10,7 +10,13 @@ import { BookMarkModule } from './book-mark/book-mark.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
-  imports: [FolderModule, RowModule, StatisticsModule, BookMarkModule, NotificationsModule],
+  imports: [
+    FolderModule,
+    RowModule,
+    StatisticsModule,
+    BookMarkModule,
+    NotificationsModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

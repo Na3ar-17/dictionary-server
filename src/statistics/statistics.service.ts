@@ -31,9 +31,13 @@ export class StatisticsService {
   async createStatistics(folderId: string) {
     const newStatistics = await this.prisma.statistics.create({
       data: {
-        folderId: folderId,
         lastSession: new Date().toISOString(),
         createdAt: new Date(),
+        folder: {
+          connect: {
+            id: folderId,
+          },
+        },
       },
     });
 
@@ -48,6 +52,16 @@ export class StatisticsService {
     });
 
     return deletedStatistics;
+  }
+
+  async deleteMany(bookMarkId: string) {
+    return await this.prisma.statistics.deleteMany({
+      where: {
+        folder: {
+          bookMarkId,
+        },
+      },
+    });
   }
 
   async endSession(folderId: string) {

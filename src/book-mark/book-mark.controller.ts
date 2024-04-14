@@ -23,8 +23,8 @@ export class BookMarkController {
 
   @UsePipes(new ValidationPipe())
   @Post('/create')
-  async create(@Body() dto: BookMarkDTO) {
-    return await this.bookMarkService.create(dto);
+  async create() {
+    return await this.bookMarkService.create();
   }
 
   @UsePipes(new ValidationPipe())

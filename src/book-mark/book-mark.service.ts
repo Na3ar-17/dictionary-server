@@ -5,14 +5,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookMarkDTO } from './dto/bookMark.dto';
+import { FolderService } from 'src/folder/folder.service';
 
 @Injectable()
 export class BookMarkService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private folderService: FolderService,
+  ) {}
 
   async getOne(id: string) {
-    console.log(id);
-
     const bookMark = await this.prisma.bookMark.findUnique({
       where: {
         id,
@@ -27,23 +29,15 @@ export class BookMarkService {
   async getAll() {
     return await this.prisma.bookMark.findMany({
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'asc',
       },
     });
   }
 
-  async create(dto: BookMarkDTO) {
-    const bookMarks = await this.getAll();
-
-    await bookMarks.forEach((el) => {
-      if (el.title === dto.title) {
-        throw new ConflictException('Title must be unique');
-      }
-    });
-
+  async create() {
     const newBookMark = await this.prisma.bookMark.create({
       data: {
-        title: dto.title,
+        title: '',
       },
     });
 
@@ -77,9 +71,11 @@ export class BookMarkService {
   async delete(id: string) {
     const bookMark = await this.getOne(id);
 
+    await this.folderService.deleteFolders(id);
+
     const deletedBookMark = await this.prisma.bookMark.delete({
       where: {
-        id: bookMark.id,
+        id: id,
       },
     });
   }

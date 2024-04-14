@@ -1,18 +1,15 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFolderDto } from './dto/folder.dto';
 import { StatisticsService } from 'src/statistics/statistics.service';
-import { stringToSlug } from 'src/utils/utils';
+import { RowService } from 'src/row/row.service';
 
 @Injectable()
 export class FolderService {
   constructor(
     private prisma: PrismaService,
     private statisticsService: StatisticsService,
+    private rowService: RowService,
   ) {}
 
   async getOne(id: string, bookMarkId: string) {
@@ -36,32 +33,25 @@ export class FolderService {
         bookMarkId,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'asc',
       },
     });
   }
 
-  async createFolder(dto: CreateFolderDto) {
-    const slug = stringToSlug(dto.title);
-
-    const folders = await this.getFolders(dto.bookMarkId);
-
-    await folders.forEach((el) => {
-      if (el.title === dto.title) {
-        throw new ConflictException('Title must be unique');
-      }
-    });
-
+  async createFolder(bookMarkId: string) {
     const newFolder = this.prisma.folder.create({
       data: {
-        title: dto.title,
-        slug,
-        bookMarkId: dto.bookMarkId,
+        title: '',
+        bookMark: {
+          connect: {
+            id: bookMarkId,
+          },
+        },
       },
     });
 
     const newStatistics = await this.statisticsService.createStatistics(
-      (await newFolder).id.toString(),
+      (await newFolder).id,
     );
 
     return newFolder;
@@ -69,13 +59,6 @@ export class FolderService {
 
   async editFolder(dto: CreateFolderDto, folderId: string) {
     const folder = await this.getOne(folderId, dto.bookMarkId);
-    const folders = await this.getFolders(dto.bookMarkId);
-
-    await folders.forEach((el) => {
-      if (el.title === dto.title) {
-        throw new ConflictException('Title must be unique');
-      }
-    });
 
     const newFolder = this.prisma.folder.update({
       where: {
@@ -97,7 +80,21 @@ export class FolderService {
 
     const deletedFolder = await this.prisma.folder.delete({
       where: {
-        id: folder.id,
+        id: folderId,
+      },
+    });
+  }
+
+  async deleteFolders(bookMarkId: string) {
+    const deletedStatistics =
+      await this.statisticsService.deleteMany(bookMarkId);
+
+    // const deletedRows = await this.rowService.deleteAll(bookMarkId);
+    const deletedFolders = await this.prisma.folder.deleteMany({
+      where: {
+        bookMark: {
+          id: bookMarkId,
+        },
       },
     });
   }
