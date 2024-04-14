@@ -1,20 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { FolderService } from './folder.service';
 import { FolderController } from './folder.controller';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { StatisticsService } from 'src/statistics/statistics.service';
-import { RowService } from 'src/row/row.service';
-import { BookMarkService } from 'src/book-mark/book-mark.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { StatisticsModule } from 'src/statistics/statistics.module';
 import { RowModule } from 'src/row/row.module';
+import { RowService } from 'src/row/row.service';
 
 @Module({
   controllers: [FolderController],
-  providers: [
-    FolderService,
-    PrismaService,
-    StatisticsService,
-    RowService,
-    BookMarkService,
-  ],
+  exports: [FolderService],
+  imports: [PrismaModule, StatisticsModule, forwardRef(() => RowModule)],
+  providers: [FolderService, RowService],
 })
 export class FolderModule {}

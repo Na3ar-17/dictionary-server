@@ -1,21 +1,14 @@
 import { Module } from '@nestjs/common';
 import { BookMarkService } from './book-mark.service';
 import { BookMarkController } from './book-mark.controller';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { FolderService } from 'src/folder/folder.service';
-import { RowService } from 'src/row/row.service';
-import { StatisticsService } from 'src/statistics/statistics.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
+
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { FolderModule } from 'src/folder/folder.module';
 
 @Module({
   controllers: [BookMarkController],
-  providers: [
-    BookMarkService,
-    PrismaService,
-    FolderService,
-    StatisticsService,
-    RowService,
-    NotificationsService,
-  ],
+  exports: [BookMarkService],
+  imports: [PrismaModule, FolderModule],
+  providers: [BookMarkService],
 })
 export class BookMarkModule {}

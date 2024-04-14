@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFolderDto } from './dto/folder.dto';
 import { StatisticsService } from 'src/statistics/statistics.service';
@@ -9,6 +14,8 @@ export class FolderService {
   constructor(
     private prisma: PrismaService,
     private statisticsService: StatisticsService,
+
+    @Inject(forwardRef(() => RowService))
     private rowService: RowService,
   ) {}
 
@@ -89,7 +96,7 @@ export class FolderService {
     const deletedStatistics =
       await this.statisticsService.deleteMany(bookMarkId);
 
-    // const deletedRows = await this.rowService.deleteAll(bookMarkId);
+    const deletedRows = await this.rowService.deleteAll(bookMarkId);
     const deletedFolders = await this.prisma.folder.deleteMany({
       where: {
         bookMark: {

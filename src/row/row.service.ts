@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateRowDto } from './dto/row.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FolderService } from 'src/folder/folder.service';
@@ -8,7 +13,9 @@ import { StatisticsService } from 'src/statistics/statistics.service';
 export class RowService {
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => FolderService))
     private folderService: FolderService,
+
     private statisticsService: StatisticsService,
   ) {}
 
