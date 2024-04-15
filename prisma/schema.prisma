@@ -71,7 +71,8 @@ model Statistics {
   createdRows          Int       @default(0) @map("created_rows")
   deletedRows          Int       @default(0) @map("deleted_rows")
   rowsCount             Int       @map("rows_count") @default(0)
-
+  timeToNextSession DateTime? @map("time_to_next_session") 
+  duration Int @default(0)
   @@map("statistics")
 }
 
@@ -80,7 +81,6 @@ model Notifications {
   id String @id @default(cuid())
   message String
   location String
-
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

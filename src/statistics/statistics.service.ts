@@ -77,7 +77,28 @@ export class StatisticsService {
       },
     });
 
-    return endedSession;
+    const nextTimeToRepeat = new Date();
+    nextTimeToRepeat.setMinutes(nextTimeToRepeat.getMinutes() + 5);
+
+    const updatedNextTimeToRepeat = await this.prisma.statistics.update({
+      where: {
+        folderId,
+      },
+      data: {
+        timeToNextSession: nextTimeToRepeat.toISOString(),
+      },
+    });
+
+    // const updatedDuration = await this.prisma.statistics.update({
+    //   where: {
+    //     folderId,
+    //   },
+    //   data: {
+    //     duration: statistics.duration,
+    //   },
+    // });
+
+    return updatedNextTimeToRepeat;
   }
 
   async incrementCreatedRows(folderId: string) {

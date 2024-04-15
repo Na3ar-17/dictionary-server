@@ -35,16 +35,23 @@ export class RowService {
   }
 
   history = new Set();
+  next;
 
   async getRandomRow(folderId: string) {
     const rows = await this.getRows(folderId);
+    this.next = rows.length;
 
     this.shuffleArray(rows);
 
     for (const row of rows) {
       if (!this.history.has(row.id)) {
         this.history.add(row.id);
-        return row;
+        this.next -= this.history.size;
+        const res = {
+          ...row,
+          next: this.next,
+        };
+        return res;
       }
     }
 
